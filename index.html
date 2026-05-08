@@ -1,0 +1,524 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Book a Session | Commerce Rewired</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@300;400;500&family=Open+Sans:ital,wght@0,300;0,400;1,300&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg-dark:    #111d25;
+      --bg-mid:     #182330;
+      --bg-card:    #1e2d3a;
+      --bg-teal:    #1a3040;
+      --sky-blue:   #AEC8D4;
+      --tan:        #C47A3A;
+      --blue-grey:  #4A7386;
+      --ice-blue:   #d6ecf3;
+      --muted:      #4A7386;
+      --font-heading: 'Oswald', sans-serif;
+      --font-body:    'Open Sans', sans-serif;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--bg-dark);
+      color: var(--ice-blue);
+      font-family: var(--font-body);
+      font-weight: 300;
+      font-size: 1.1rem;
+      line-height: 1.7;
+      overflow-x: hidden;
+      min-height: 100vh;
+    }
+
+    /* ── BACKGROUND ── */
+    body::before {
+      content: '';
+      position: fixed; inset: 0; z-index: 0; pointer-events: none;
+      background:
+        radial-gradient(ellipse 800px 600px at 90% 20%, rgba(126,200,227,0.055) 0%, transparent 70%),
+        radial-gradient(ellipse 500px 500px at 5% 80%, rgba(196,122,58,0.05) 0%, transparent 70%),
+        linear-gradient(160deg, var(--bg-dark) 0%, var(--bg-teal) 60%, var(--bg-mid) 100%);
+    }
+
+    /* ── DECORATIVE RINGS ── */
+    .bg-ring {
+      position: fixed; border-radius: 50%; pointer-events: none; z-index: 0;
+      border: 1.5px solid rgba(126,200,227,0.07);
+    }
+    .bg-ring-1 { width: 640px; height: 640px; top: -160px; right: -160px; }
+    .bg-ring-2 { width: 380px; height: 380px; top: 40px; right: 80px; border-color: rgba(196,122,58,0.06); }
+    .bg-ring-3 { width: 260px; height: 260px; bottom: 80px; left: -80px; border-color: rgba(126,200,227,0.05); }
+
+    /* ── NAV ── */
+    nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 5%; height: 72px;
+      background: rgba(17,29,37,0.92);
+      backdrop-filter: blur(16px);
+      border-bottom: 1px solid rgba(126,200,227,0.1);
+    }
+    .nav-brand {
+      font-family: var(--font-heading); font-weight: 400;
+      font-size: 1.15rem; letter-spacing: 0.2em; text-transform: uppercase;
+      color: var(--sky-blue); text-decoration: none;
+    }
+    .nav-brand span { color: var(--tan); }
+    .nav-back {
+      font-family: var(--font-heading); font-weight: 400;
+      font-size: 0.85rem; letter-spacing: 0.12em; text-transform: uppercase;
+      color: var(--blue-grey); text-decoration: none; transition: color 0.2s;
+    }
+    .nav-back:hover { color: var(--sky-blue); }
+
+    /* ── PAGE WRAPPER ── */
+    .page {
+      position: relative; z-index: 1;
+      min-height: 100vh;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      padding-top: 72px;
+    }
+
+    /* ── LEFT PANEL ── */
+    .left-panel {
+      padding: 6rem 5% 5rem 7%;
+      display: flex; flex-direction: column; justify-content: center;
+      position: relative;
+    }
+    .left-panel::after {
+      content: '';
+      position: absolute; top: 15%; right: 0; bottom: 15%;
+      width: 1px;
+      background: linear-gradient(to bottom, transparent, rgba(126,200,227,0.15) 30%, rgba(126,200,227,0.15) 70%, transparent);
+    }
+
+    .eyebrow {
+      font-family: var(--font-heading); font-weight: 400;
+      font-size: 0.85rem; letter-spacing: 0.3em; text-transform: uppercase;
+      color: var(--tan); margin-bottom: 1rem;
+    }
+    .left-panel h1 {
+      font-family: var(--font-heading); font-weight: 400;
+      font-size: clamp(2.2rem, 4vw, 3.5rem);
+      line-height: 1.05; text-transform: uppercase; letter-spacing: 0.04em;
+      color: var(--sky-blue); margin-bottom: 1.5rem;
+    }
+    .left-panel h1 span { color: var(--tan); }
+
+    .left-desc {
+      font-size: 1.05rem; line-height: 1.8; color: var(--ice-blue);
+      max-width: 420px; margin-bottom: 2.8rem;
+    }
+
+    /* value props */
+    .value-list { list-style: none; display: flex; flex-direction: column; gap: 1rem; }
+    .value-list li {
+      display: flex; align-items: flex-start; gap: 0.9rem;
+      font-size: 0.95rem; color: var(--ice-blue);
+    }
+    .value-list li::before {
+      content: '→';
+      font-family: var(--font-heading); color: var(--tan);
+      font-size: 1rem; flex-shrink: 0; margin-top: 0.15rem;
+    }
+
+    .trust-note {
+      margin-top: 3rem; padding-top: 2rem;
+      border-top: 1px solid rgba(126,200,227,0.1);
+      font-size: 0.88rem; color: var(--muted); line-height: 1.6;
+    }
+    .trust-note strong { color: var(--sky-blue); font-weight: 400; }
+
+    /* ── RIGHT PANEL ── */
+    .right-panel {
+      padding: 6rem 7% 5rem 5%;
+      display: flex; flex-direction: column; justify-content: center;
+    }
+
+    /* Thank you header */
+    .form-header { margin-bottom: 2.5rem; }
+    .form-header .thank-you {
+      font-family: var(--font-heading); font-weight: 400;
+      font-size: 0.82rem; letter-spacing: 0.28em; text-transform: uppercase;
+      color: var(--tan); margin-bottom: 0.6rem;
+    }
+    .form-header h2 {
+      font-family: var(--font-heading); font-weight: 400;
+      font-size: clamp(1.6rem, 3vw, 2.4rem);
+      text-transform: uppercase; letter-spacing: 0.04em;
+      color: var(--sky-blue); line-height: 1.1; margin-bottom: 0.8rem;
+    }
+    .form-header p {
+      font-size: 0.95rem; color: var(--ice-blue); line-height: 1.7;
+    }
+
+    /* ── FORM ── */
+    .booking-form { display: flex; flex-direction: column; gap: 1.3rem; }
+
+    .field-group { display: grid; grid-template-columns: 1fr 1fr; gap: 1.3rem; }
+
+    .field { display: flex; flex-direction: column; gap: 0.4rem; }
+    .field label {
+      font-family: var(--font-heading); font-weight: 400;
+      font-size: 0.78rem; letter-spacing: 0.2em; text-transform: uppercase;
+      color: var(--blue-grey);
+    }
+    .field input,
+    .field textarea,
+    .field select {
+      background: rgba(30,45,58,0.7);
+      border: 1px solid rgba(126,200,227,0.18);
+      border-radius: 3px;
+      padding: 0.8rem 1rem;
+      font-family: var(--font-body); font-weight: 300;
+      font-size: 0.95rem; color: var(--ice-blue);
+      transition: border-color 0.2s, background 0.2s;
+      outline: none; width: 100%;
+      -webkit-appearance: none;
+    }
+    .field input::placeholder,
+    .field textarea::placeholder { color: rgba(174,200,212,0.35); }
+    .field input:focus,
+    .field textarea:focus,
+    .field select:focus {
+      border-color: rgba(196,122,58,0.55);
+      background: rgba(30,45,58,0.95);
+    }
+    .field textarea { resize: vertical; min-height: 110px; }
+    .field select { cursor: pointer; }
+    .field select option { background: var(--bg-card); color: var(--ice-blue); }
+
+    /* checkbox group for topics */
+    .topics-grid {
+      display: grid; grid-template-columns: 1fr 1fr;
+      gap: 0.6rem; margin-top: 0.2rem;
+    }
+    .topic-check {
+      display: flex; align-items: center; gap: 0.55rem;
+      cursor: pointer; font-size: 0.88rem; color: var(--ice-blue);
+      padding: 0.5rem 0.7rem;
+      border: 1px solid rgba(126,200,227,0.12);
+      border-radius: 3px;
+      background: rgba(30,45,58,0.4);
+      transition: all 0.18s;
+      user-select: none;
+    }
+    .topic-check:hover { border-color: rgba(196,122,58,0.4); background: rgba(30,45,58,0.7); }
+    .topic-check input[type="checkbox"] { display: none; }
+    .topic-check .check-box {
+      width: 15px; height: 15px; flex-shrink: 0;
+      border: 1.5px solid rgba(126,200,227,0.3);
+      border-radius: 2px;
+      display: flex; align-items: center; justify-content: center;
+      transition: all 0.18s;
+    }
+    .topic-check input:checked ~ .check-box {
+      background: var(--tan); border-color: var(--tan);
+    }
+    .topic-check input:checked ~ .check-box::after {
+      content: '✓'; font-size: 0.7rem; color: var(--bg-dark); font-weight: 700;
+    }
+    .topic-check input:checked ~ span { color: var(--sky-blue); }
+
+    /* divider */
+    .form-divider {
+      display: flex; align-items: center; gap: 1rem;
+      margin: 0.4rem 0;
+    }
+    .form-divider::before, .form-divider::after {
+      content: ''; flex: 1;
+      height: 1px; background: rgba(126,200,227,0.12);
+    }
+    .form-divider span {
+      font-family: var(--font-heading); font-size: 0.75rem;
+      letter-spacing: 0.18em; text-transform: uppercase; color: var(--muted);
+    }
+
+    /* CTA buttons */
+    .btn-row { display: flex; flex-direction: column; gap: 0.75rem; margin-top: 0.3rem; }
+
+    .btn {
+      display: flex; align-items: center; justify-content: center; gap: 0.6rem;
+      font-family: var(--font-heading); font-weight: 400;
+      font-size: 0.95rem; letter-spacing: 0.14em; text-transform: uppercase;
+      text-decoration: none; padding: 1rem 2rem; border-radius: 3px;
+      transition: all 0.22s; cursor: pointer; border: none;
+      width: 100%;
+    }
+    .btn-primary {
+      background: var(--tan); color: var(--bg-dark);
+    }
+    .btn-primary:hover { opacity: 0.88; transform: translateY(-1px); }
+    .btn-primary:disabled {
+      opacity: 0.5; cursor: not-allowed; transform: none;
+    }
+    .btn-stripe {
+      background: transparent;
+      color: var(--sky-blue);
+      border: 1.5px solid rgba(126,200,227,0.3);
+    }
+    .btn-stripe:hover { border-color: var(--sky-blue); transform: translateY(-1px); }
+
+    .btn-stripe .stripe-icon {
+      display: inline-flex; align-items: center;
+      background: #635BFF; border-radius: 3px;
+      padding: 0.15rem 0.45rem;
+      font-size: 0.7rem; font-family: var(--font-body);
+      color: #fff; letter-spacing: 0.05em; text-transform: none;
+      font-weight: 600;
+    }
+
+    /* success state */
+    .success-msg {
+      display: none;
+      text-align: center; padding: 2rem;
+      background: rgba(30,45,58,0.6);
+      border: 1px solid rgba(126,200,227,0.2);
+      border-radius: 4px;
+    }
+    .success-msg.show { display: block; }
+    .success-msg .check-circle {
+      width: 52px; height: 52px; margin: 0 auto 1.2rem;
+      border-radius: 50%;
+      border: 2px solid var(--tan);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.3rem; color: var(--tan);
+    }
+    .success-msg h3 {
+      font-family: var(--font-heading); font-size: 1.5rem;
+      text-transform: uppercase; letter-spacing: 0.1em;
+      color: var(--sky-blue); margin-bottom: 0.7rem;
+    }
+    .success-msg p { font-size: 0.95rem; color: var(--ice-blue); }
+
+    /* ── FOOTER ── */
+    .page-footer {
+      position: relative; z-index: 1;
+      text-align: center; padding: 2rem 5%;
+      border-top: 1px solid rgba(126,200,227,0.08);
+      font-size: 0.8rem; color: var(--muted);
+    }
+
+    /* ── ANIMATION ── */
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(24px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    .left-panel { animation: fadeUp 0.8s ease both; }
+    .right-panel { animation: fadeUp 0.8s 0.15s ease both; }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 900px) {
+      .page { grid-template-columns: 1fr; }
+      .left-panel::after { display: none; }
+      .left-panel { padding: 4rem 6% 3rem; }
+      .right-panel { padding: 3rem 6% 4rem; }
+      .field-group { grid-template-columns: 1fr; }
+      .topics-grid { grid-template-columns: 1fr; }
+    }
+    @media (max-width: 480px) {
+      .left-panel, .right-panel { padding: 3rem 5%; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- decorative rings -->
+  <div class="bg-ring bg-ring-1"></div>
+  <div class="bg-ring bg-ring-2"></div>
+  <div class="bg-ring bg-ring-3"></div>
+
+  <!-- NAV -->
+  <nav>
+    <a href="index.html" class="nav-brand">Commerce <span>Rewired</span></a>
+    <a href="index.html" class="nav-back">← Back to main site</a>
+  </nav>
+
+  <!-- PAGE -->
+  <div class="page">
+
+    <!-- LEFT -->
+    <div class="left-panel">
+      <p class="eyebrow">Advisory &amp; Consulting</p>
+      <h1>Let's Build<br>Something<br><span>Exceptional</span></h1>
+      <p class="left-desc">
+        You're one conversation away from clarity. Whether you're navigating a transformation, evaluating technology, or scaling your team — we've been in the room where it happens.
+      </p>
+
+      <ul class="value-list">
+        <li>Senior advisors with real operator experience — not theory</li>
+        <li>Retail, ecommerce, logistics, and digital under one roof</li>
+        <li>Actionable strategy, not 200-page slide decks</li>
+        <li>Direct access to the experts, every session</li>
+      </ul>
+
+      <div class="trust-note">
+        <strong>Trusted by leaders at Walmart, Canadian Tire, Bell, Toys"R"Us, ASICS</strong> and 25+ other major brands and organizations across North America.
+      </div>
+    </div>
+
+    <!-- RIGHT -->
+    <div class="right-panel">
+      <div class="form-header">
+        <p class="thank-you">Thank you for reaching out</p>
+        <h2>Tell us about<br>your challenge</h2>
+        <p>Fill in the details below. We'll review and follow up within one business day to confirm your session.</p>
+      </div>
+
+      <!-- FORM -->
+      <form class="booking-form" id="bookingForm" novalidate>
+
+        <div class="field-group">
+          <div class="field">
+            <label for="fname">First Name *</label>
+            <input type="text" id="fname" name="fname" placeholder="Jane" required />
+          </div>
+          <div class="field">
+            <label for="lname">Last Name *</label>
+            <input type="text" id="lname" name="lname" placeholder="Smith" required />
+          </div>
+        </div>
+
+        <div class="field">
+          <label for="email">Email Address *</label>
+          <input type="email" id="email" name="email" placeholder="jane@company.com" required />
+        </div>
+
+        <div class="field">
+          <label for="company">Company / Business *</label>
+          <input type="text" id="company" name="company" placeholder="Acme Retail Inc." required />
+        </div>
+
+        <div class="field">
+          <label>Topics / Areas of Focus *</label>
+          <div class="topics-grid">
+            <label class="topic-check">
+              <input type="checkbox" name="topics" value="Retail Strategy" />
+              <span class="check-box"></span>
+              <span>Retail Strategy</span>
+            </label>
+            <label class="topic-check">
+              <input type="checkbox" name="topics" value="Ecommerce & Digital" />
+              <span class="check-box"></span>
+              <span>Ecommerce &amp; Digital</span>
+            </label>
+            <label class="topic-check">
+              <input type="checkbox" name="topics" value="Operations & Logistics" />
+              <span class="check-box"></span>
+              <span>Operations &amp; Logistics</span>
+            </label>
+            <label class="topic-check">
+              <input type="checkbox" name="topics" value="Leadership & Coaching" />
+              <span class="check-box"></span>
+              <span>Leadership &amp; Coaching</span>
+            </label>
+            <label class="topic-check">
+              <input type="checkbox" name="topics" value="Technology & Vendor Advisory" />
+              <span class="check-box"></span>
+              <span>Tech &amp; Vendor Advisory</span>
+            </label>
+            <label class="topic-check">
+              <input type="checkbox" name="topics" value="Other" />
+              <span class="check-box"></span>
+              <span>Other</span>
+            </label>
+          </div>
+        </div>
+
+        <div class="field">
+          <label for="questions">Your Questions or Context</label>
+          <textarea id="questions" name="questions" placeholder="Tell us what you're working through — the more context, the better we can prepare…"></textarea>
+        </div>
+
+        <div class="btn-row">
+          <button type="submit" class="btn btn-primary" id="submitBtn">
+            Submit My Details
+          </button>
+
+          <div class="form-divider">
+            <span>or proceed directly to payment</span>
+          </div>
+
+          <a href="YOUR_STRIPE_PAYMENT_LINK_HERE" target="_blank" class="btn btn-stripe">
+            <span class="stripe-icon">stripe</span>
+            Pay &amp; Confirm My Session
+          </a>
+        </div>
+
+      </form>
+
+      <!-- SUCCESS STATE -->
+      <div class="success-msg" id="successMsg">
+        <div class="check-circle">✓</div>
+        <h3>You're on our radar</h3>
+        <p>Thanks — we've received your details and will be in touch within one business day to confirm your session and next steps.</p>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- FOOTER -->
+  <footer class="page-footer">
+    © 2026 Commerce Rewired. All rights reserved. &nbsp;·&nbsp; <a href="mailto:hello@commercerewired.co" style="color:var(--blue-grey);text-decoration:none;">hello@commercerewired.co</a>
+  </footer>
+
+  <script>
+    const form = document.getElementById('bookingForm');
+    const submitBtn = document.getElementById('submitBtn');
+    const successMsg = document.getElementById('successMsg');
+
+    form.addEventListener('submit', function(e) {
+      e.preventDefault();
+
+      // Basic validation
+      const fname = form.fname.value.trim();
+      const lname = form.lname.value.trim();
+      const email = form.email.value.trim();
+      const company = form.company.value.trim();
+      const topics = [...form.querySelectorAll('input[name="topics"]:checked')].map(c => c.value);
+
+      if (!fname || !lname || !email || !company) {
+        // Highlight empty required fields
+        [['fname', fname], ['lname', lname], ['email', email], ['company', company]].forEach(([id, val]) => {
+          const el = document.getElementById(id);
+          el.style.borderColor = val ? 'rgba(126,200,227,0.18)' : 'rgba(196,122,58,0.7)';
+        });
+        return;
+      }
+
+      if (topics.length === 0) {
+        alert('Please select at least one topic.');
+        return;
+      }
+
+      // Simulate submission (replace with your form endpoint / email service)
+      submitBtn.disabled = true;
+      submitBtn.textContent = 'Sending…';
+
+      setTimeout(() => {
+        form.style.display = 'none';
+        successMsg.classList.add('show');
+      }, 900);
+
+      // ── REPLACE THIS BLOCK with your actual submission logic ──
+      // e.g. fetch('/api/lead', { method: 'POST', body: new FormData(form) })
+    });
+
+    // Reset field highlight on input
+    ['fname','lname','email','company'].forEach(id => {
+      document.getElementById(id).addEventListener('input', function() {
+        this.style.borderColor = '';
+      });
+    });
+  </script>
+
+</body>
+</html>
