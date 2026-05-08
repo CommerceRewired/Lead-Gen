@@ -471,6 +471,12 @@
   </footer>
 
   <script>
+    window.formspree = window.formspree || function () { (formspree.q = formspree.q || []).push(arguments); };
+    formspree('initForm', { formElement: '#bookingForm', formId: 'meenlbbn' });
+  </script>
+  <script src="https://unpkg.com/@formspree/ajax@1" defer></script>
+
+  <script>
     const form = document.getElementById('bookingForm');
     const submitBtn = document.getElementById('submitBtn');
     const successMsg = document.getElementById('successMsg');
@@ -478,38 +484,61 @@
     form.addEventListener('submit', function(e) {
       e.preventDefault();
 
-      // Basic validation
-      const fname = form.fname.value.trim();
-      const lname = form.lname.value.trim();
-      const email = form.email.value.trim();
+      // Client-side validation before Formspree takes over
+      const fname   = form.fname.value.trim();
+      const lname   = form.lname.value.trim();
+      const email   = form.email.value.trim();
       const company = form.company.value.trim();
-      const topics = [...form.querySelectorAll('input[name="topics"]:checked')].map(c => c.value);
+      const topics  = [...form.querySelectorAll('input[name="topics"]:checked')].map(c => c.value);
 
-      if (!fname || !lname || !email || !company) {
-        // Highlight empty required fields
-        [['fname', fname], ['lname', lname], ['email', email], ['company', company]].forEach(([id, val]) => {
-          const el = document.getElementById(id);
-          el.style.borderColor = val ? 'rgba(126,200,227,0.18)' : 'rgba(196,122,58,0.7)';
-        });
-        return;
-      }
+      let valid = true;
+      [['fname', fname], ['lname', lname], ['email', email], ['company', company]].forEach(([id, val]) => {
+        const el = document.getElementById(id);
+        el.style.borderColor = val ? '' : 'rgba(196,122,58,0.7)';
+        if (!val) valid = false;
+      });
+      if (!valid) return;
 
       if (topics.length === 0) {
         alert('Please select at least one topic.');
         return;
       }
 
-      // Simulate submission (replace with your form endpoint / email service)
+      // Collapse checkboxes into a single comma-separated field for Formspree
+      let hiddenTopics = form.querySelector('input[name="_topics_summary"]');
+      if (!hiddenTopics) {
+        hiddenTopics = document.createElement('input');
+        hiddenTopics.type = 'hidden';
+        hiddenTopics.name = '_topics_summary';
+        form.appendChild(hiddenTopics);
+      }
+      hiddenTopics.value = topics.join(', ');
+
       submitBtn.disabled = true;
       submitBtn.textContent = 'Sending…';
 
-      setTimeout(() => {
-        form.style.display = 'none';
-        successMsg.classList.add('show');
-      }, 900);
-
-      // ── REPLACE THIS BLOCK with your actual submission logic ──
-      // e.g. fetch('/api/lead', { method: 'POST', body: new FormData(form) })
+      fetch('https://formspree.io/f/meenlbbn', {
+        method: 'POST',
+        body: new FormData(form),
+        headers: { 'Accept': 'application/json' }
+      })
+      .then(res => res.json())
+      .then(data => {
+        if (data.ok) {
+          form.style.display = 'none';
+          successMsg.classList.add('show');
+        } else {
+          const msg = data.errors?.map(e => e.message).join(', ') || 'Something went wrong. Please try again.';
+          alert(msg);
+          submitBtn.disabled = false;
+          submitBtn.textContent = 'Submit My Details';
+        }
+      })
+      .catch(() => {
+        alert('Network error — please check your connection and try again.');
+        submitBtn.disabled = false;
+        submitBtn.textContent = 'Submit My Details';
+      });
     });
 
     // Reset field highlight on input
