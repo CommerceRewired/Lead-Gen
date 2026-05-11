@@ -327,6 +327,40 @@
     @media (max-width: 480px) {
       .left-panel, .right-panel { padding: 3rem 5%; }
     }
+    .callout-box {
+      margin-bottom: 2rem;
+      padding: 1.6rem 1.8rem;
+      background: rgba(196,122,58,0.08);
+      border: 1.5px solid rgba(196,122,58,0.35);
+      border-radius: 4px;
+      position: relative;
+    }
+    .callout-label {
+      font-family: var(--font-heading); font-weight: 400;
+      font-size: 0.78rem; letter-spacing: 0.25em; text-transform: uppercase;
+      color: var(--tan); margin-bottom: 0.4rem;
+    }
+    .callout-headline {
+      font-family: var(--font-heading); font-weight: 400;
+      font-size: clamp(1.8rem, 3.5vw, 2.6rem);
+      text-transform: uppercase; letter-spacing: 0.05em;
+      color: var(--sky-blue); line-height: 1; margin-bottom: 0.7rem;
+    }
+    .callout-fee {
+      font-family: var(--font-heading); font-weight: 400;
+      font-size: 2.2rem; color: var(--tan); line-height: 1;
+    }
+    .callout-fee span {
+      font-size: 1rem; color: var(--ice-blue);
+      letter-spacing: 0.08em; text-transform: uppercase;
+      vertical-align: middle; margin-left: 0.3rem;
+    }
+    .payment-note {
+      font-size: 0.82rem; color: var(--muted);
+      line-height: 1.6; margin-bottom: 0.6rem;
+      border-left: 2px solid var(--tan);
+      padding-left: 0.8rem;
+    }
   </style>
 </head>
 <body>
@@ -359,6 +393,12 @@
         <li>Actionable strategy, not 200-page slide decks</li>
         <li>Direct access to the experts, every session</li>
       </ul>
+
+      <div class="callout-box" style="margin-top: 2.5rem;">
+        <p class="callout-label">Ready to get started?</p>
+        <p class="callout-headline">Book Your Call Now</p>
+        <p class="callout-fee">$500 <span>Advisory Engagement Fee</span></p>
+      </div>
 
       <div class="trust-note">
         <strong>Trusted by leaders at Walmart, Canadian Tire, Bell, Toys"R"Us, ASICS</strong> and 25+ other major brands and organizations across North America.
@@ -439,18 +479,11 @@
         </div>
 
         <div class="btn-row">
-          <button type="submit" class="btn btn-primary" id="submitBtn">
-            Submit My Details
-          </button>
-
-          <div class="form-divider">
-            <span>or proceed directly to payment</span>
-          </div>
-
-          <a href="YOUR_STRIPE_PAYMENT_LINK_HERE" target="_blank" class="btn btn-stripe">
+          <p class="payment-note">Payment is required to confirm your session. Complete the form above and click below — your details will be captured and you'll be taken to payment.</p>
+          <button type="button" class="btn btn-primary" id="stripeBtn">
             <span class="stripe-icon">stripe</span>
             Pay &amp; Confirm My Session
-          </a>
+          </button>
         </div>
 
       </form>
@@ -471,20 +504,13 @@
   </footer>
 
   <script>
-    window.formspree = window.formspree || function () { (formspree.q = formspree.q || []).push(arguments); };
-    formspree('initForm', { formElement: '#bookingForm', formId: 'meenlbbn' });
-  </script>
-  <script src="https://unpkg.com/@formspree/ajax@1" defer></script>
-
-  <script>
-    const form = document.getElementById('bookingForm');
-    const submitBtn = document.getElementById('submitBtn');
+    const form       = document.getElementById('bookingForm');
+    const stripeBtn  = document.getElementById('stripeBtn');
     const successMsg = document.getElementById('successMsg');
 
-    form.addEventListener('submit', function(e) {
-      e.preventDefault();
+    const STRIPE_URL = 'YOUR_STRIPE_PAYMENT_LINK_HERE';
 
-      // Client-side validation before Formspree takes over
+    function validate() {
       const fname   = form.fname.value.trim();
       const lname   = form.lname.value.trim();
       const email   = form.email.value.trim();
@@ -497,14 +523,26 @@
         el.style.borderColor = val ? '' : 'rgba(196,122,58,0.7)';
         if (!val) valid = false;
       });
-      if (!valid) return;
+      if (!valid) { stripeBtn.disabled = false; stripeBtn.textContent = ''; stripeBtn.innerHTML = '<span class="stripe-icon">stripe</span> Pay &amp; Confirm My Session'; return null; }
 
       if (topics.length === 0) {
         alert('Please select at least one topic.');
-        return;
+        stripeBtn.disabled = false;
+        stripeBtn.innerHTML = '<span class="stripe-icon">stripe</span> Pay &amp; Confirm My Session';
+        return null;
       }
 
-      // Collapse checkboxes into a single comma-separated field for Formspree
+      return { fname, lname, email, company, topics };
+    }
+
+    stripeBtn.addEventListener('click', function() {
+      stripeBtn.disabled = true;
+      stripeBtn.textContent = 'Validating…';
+
+      const data = validate();
+      if (!data) return;
+
+      // Build topics hidden field
       let hiddenTopics = form.querySelector('input[name="_topics_summary"]');
       if (!hiddenTopics) {
         hiddenTopics = document.createElement('input');
@@ -512,32 +550,21 @@
         hiddenTopics.name = '_topics_summary';
         form.appendChild(hiddenTopics);
       }
-      hiddenTopics.value = topics.join(', ');
+      hiddenTopics.value = data.topics.join(', ');
 
-      submitBtn.disabled = true;
-      submitBtn.textContent = 'Sending…';
+      stripeBtn.textContent = 'Sending details…';
 
+      // Fire Formspree silently, then open Stripe regardless
       fetch('https://formspree.io/f/meenlbbn', {
         method: 'POST',
         body: new FormData(form),
         headers: { 'Accept': 'application/json' }
       })
-      .then(res => res.json())
-      .then(data => {
-        if (data.ok) {
-          form.style.display = 'none';
-          successMsg.classList.add('show');
-        } else {
-          const msg = data.errors?.map(e => e.message).join(', ') || 'Something went wrong. Please try again.';
-          alert(msg);
-          submitBtn.disabled = false;
-          submitBtn.textContent = 'Submit My Details';
-        }
-      })
-      .catch(() => {
-        alert('Network error — please check your connection and try again.');
-        submitBtn.disabled = false;
-        submitBtn.textContent = 'Submit My Details';
+      .finally(() => {
+        // Open Stripe in new tab — fires whether Formspree succeeded or not
+        window.open(STRIPE_URL, '_blank');
+        form.style.display = 'none';
+        successMsg.classList.add('show');
       });
     });
 
